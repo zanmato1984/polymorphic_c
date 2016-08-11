@@ -1,5 +1,3 @@
-#include "stddef.h"
-
 #define MAX_VFUNC 256
 
 // virtual function type

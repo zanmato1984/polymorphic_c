@@ -15,8 +15,7 @@ Windows: Visual Studio 2015
 
 1. Class define.
 2. Inheritance.
-2. Virtual function define/override.
-3. 
+3. Virtual function define/override. 
 
 ## Usage
 

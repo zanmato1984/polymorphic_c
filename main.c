@@ -2,65 +2,68 @@
 
 #include <stdio.h>
 
-BEGIN_DEF_CLASS(A)
-int a;
-END_DEF_CLASS(A)
+BEGIN_DEF_CLASS(base)
+  int dummy;
+END_DEF_CLASS(base)
+DECL_CLASS_VFUNCS(base,
+    get_name,
+    say_hello)
 
-DEF_VFUNC_NO_PARAM(A, int, get_a)
+DEF_VFUNC_NO_PARAM(base, const char *, get_name)
 {
-  return this->a;
+  return "base";
 }
 
-DEF_VFUNC(A, void, set_a, int a)
+DEF_VFUNC_NO_PARAM(base, void, say_hello)
 {
-  this->a = a;
+  printf("Hello, I'm %s.\n", VFUNC_CALL_NO_PARAM(this, get_name));
 }
 
-DECL_CLASS_VFUNCS(A, get_a, set_a)
-DEF_CLASS_VFUNCS(A, 2, get_a, A_get_a, set_a, A_set_a)
+DEF_CLASS_VFUNCS(base, 2,
+    get_name, base_get_name,
+    say_hello, base_say_hello)
 
-BEGIN_DEF_SUBCLASS(B, A)
-int b;
-END_DEF_SUBCLASS(B, A)
+BEGIN_DEF_SUBCLASS(derived, base)
+  char *name;
+END_DEF_SUBCLASS(derived, base)
 
-OVERRIDE_VFUNC_NO_PARAM(B, int, get_a)
+DECL_SUBCLASS_VFUNCS(derived, base,
+    set_name)
+
+OVERRIDE_VFUNC_NO_PARAM(derived, const char *, get_name)
 {
-  return this->b;
+  if (this->name == NULL)
+  {
+    return "derived";
+  }
+  return this->name;
 }
 
-OVERRIDE_VFUNC(B, void, set_a, int a)
+DEF_VFUNC(derived, void, set_name, char *name)
 {
-  this->b = a;
+  this->name = name;
 }
 
-DEF_VFUNC_NO_PARAM(B, int, get_b)
-{
-  return this->b;
-}
+DEF_SUBCLASS_VFUNCS(derived, base, 3,
+    say_hello, base_say_hello,
+    get_name, derived_get_name,
+    set_name, derived_set_name)
 
-DEF_VFUNC(B, void, set_b, int b)
-{
-  this->b = b;
-}
-
-DECL_SUBCLASS_VFUNCS(B, A, get_b, set_b)
-DEF_SUBCLASS_VFUNCS(B, A, 4, get_a, B_get_a, set_a, B_set_a, get_b, B_get_b, set_b, B_set_b)
-
-DEF_CLASSES(2, def_class_A, def_class_B)
+DEF_CLASSES(2, def_class_base, def_class_derived)
 
 int main()
 {
   polymorphic_c_init();
 
-  A *a1 = new_A();
-  printf("a1's a is %d.\n", VFUNC_CALL_NO_PARAM(a1, get_a));
+  base *b = new_base();
+  VFUNC_CALL_NO_PARAM(b, say_hello);
 
-  B *b = new_B();
-  A *a2 = b;
-  VFUNC_CALL(a2, set_a, 1);
-  printf("a2's a is %d.\n", VFUNC_CALL_NO_PARAM(a2, get_a));
-  VFUNC_CALL(b, set_b, 2);
-  printf("b's b is %d.\n", VFUNC_CALL_NO_PARAM(b, get_b));
-  printf("a2's a is %d.\n", VFUNC_CALL_NO_PARAM(a2, get_a));
+  derived *d = new_derived();
+  base *bd = d;
+  VFUNC_CALL_NO_PARAM(bd, say_hello);
+  VFUNC_CALL(d, set_name, "renamed");
+  VFUNC_CALL_NO_PARAM(bd, say_hello);
+  VFUNC_CALL_NO_PARAM(d, say_hello);
+
   return 0;
 }

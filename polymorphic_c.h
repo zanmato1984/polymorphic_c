@@ -6,7 +6,7 @@ typedef void(*vfunc)();
   vfunc c##_vtable[MAX_VFUNC]; \
   typedef struct \
   { \
-	void (**vptr)(); \
+  void (**vptr)(); \
     p parent;
 
 #define END_DEF_SUBCLASS(c, p) \
@@ -28,7 +28,7 @@ typedef void(*vfunc)();
   vfunc c##_vtable[MAX_VFUNC]; \
   typedef struct \
   { \
-	void (**vptr)();
+  void (**vptr)();
 
 #define END_DEF_CLASS(c) \
   } c; \
@@ -44,11 +44,21 @@ typedef void(*vfunc)();
     return o; \
   }
 
+#define DEF_VFUNC_NO_PARAM(c, r, f) \
+  typedef r (*f##_t)(c *this); \
+  r c##_##f(c *this)
+
 #define DEF_VFUNC(c, r, f, ...) \
   typedef r (*f##_t)(c *this, __VA_ARGS__); \
   r c##_##f(c *this, __VA_ARGS__)
 
-void init_vtable(vfunc vtable[], ...);
+#define OVERRIDE_VFUNC_NO_PARAM(c, r, f) \
+  r c##_##f(c *this)
+
+#define OVERRIDE_VFUNC(c, r, f, ...) \
+  r c##_##f(c *this, __VA_ARGS__)
+
+void init_vtable(vfunc vtable[], int size, ...);
 
 typedef void(*def_class)();
 
@@ -97,8 +107,14 @@ void def_classes(int size, ...);
     def_classes(__VA_ARGS__); \
   }
 
+#define VFUNC_CALL_NO_PARAM(p, f) \
+  ((f##_t)(p->vptr[f]))(p)
+
 #define VFUNC_CALL(p, f, ...) \
   ((f##_t)(p->vptr[f]))(p, __VA_ARGS__)
+
+#define PARENT_VFUNC_CALL(p, f) \
+  ((f##_t)(p->parent.vptr[fn]))(p)
 
 #define PARENT_VFUNC_CALL(p, f, ...) \
   ((f##_t)(p->parent.vptr[fn]))(p, __VA_ARGS__)

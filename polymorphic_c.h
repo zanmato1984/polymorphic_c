@@ -1,120 +1,125 @@
+#include "stddef.h"
+
 #define MAX_VFUNC 256
 
-typedef void(*vfunc)();
+// virtual function type
+typedef void(*__vfunc)();
 
-#define BEGIN_DEF_SUBCLASS(c, p) \
-  vfunc c##_vtable[MAX_VFUNC]; \
+// single inheritance root class object
+__vfunc __object_vtable[1];
+
+typedef struct
+{
+  __vfunc *__vptr;
+} object;
+
+void __object_ctor(object *this);
+
+typedef void (*__dtor_t)(object *this);
+
+void __object_dtor(object *this);
+
+enum __object_vfuncs
+{
+  dtor = 0,
+  __object_last_vfunc,
+};
+
+void __register_object_vfuncs(__vfunc vtable[]);
+
+// vtable manipulation functions
+void __register_vfuncs(__vfunc vtable[], int size, ...);
+
+// universal object delete function
+void delete(object *p);
+
+// macros to define classes
+#define BEGIN_DEF_CLASS(c, p) \
+  __vfunc __##c##_vtable[MAX_VFUNC]; \
   typedef struct \
   { \
-  void (**vptr)(); \
-    p parent;
+    __vfunc *__vptr; \
+    p __parent;
 
-#define END_DEF_SUBCLASS(c, p) \
+#define END_DEF_CLASS(c, p) \
   } c; \
-  void construct_##c(c *o) \
+  void __##c##_ctor(c *this) \
   { \
-    construct_##p(&o->parent); \
-    o->vptr = c##_vtable; \
+    __##p##_ctor(&this->__parent); \
+    this->__vptr = __##c##_vtable; \
   } \
   c *new_##c() \
   { \
-    c *o = malloc(sizeof(c)); \
-    memset(o, 0, sizeof(c)); \
-    construct_##c(o); \
-    return o; \
-  }
-
-#define BEGIN_DEF_CLASS(c) \
-  vfunc c##_vtable[MAX_VFUNC]; \
-  typedef struct \
-  { \
-  void (**vptr)();
-
-#define END_DEF_CLASS(c) \
-  } c; \
-  void construct_##c(c *o) \
-  { \
-    o->vptr = c##_vtable; \
+    c *this = malloc(sizeof(c)); \
+    memset(this, 0, sizeof(c)); \
+    __##c##_ctor(this); \
+    return this; \
   } \
-  c *new_##c() \
+  void __##c##_dtor(c *this) \
   { \
-    c *o = malloc(sizeof(c)); \
-    memset(o, 0, sizeof(c)); \
-    construct_##c(o); \
-    return o; \
+    __##p##_dtor(this); \
   }
 
-#define DEF_VFUNC_NO_PARAM(c, r, f) \
-  typedef r (*f##_t)(c *this); \
-  r c##_##f(c *this)
+#define __VFUNC_NAME(c, f) \
+  __##c##_##f
+
+#define __VFUNC_TYPE_NAME(f) \
+  __##f##_t
+
+// macro to reference a vfunc when registering
+#define VFUNC_REF(c, f) \
+  __VFUNC_NAME(c, f)
+
+// macros to define virtual functions
+#define OVERRIDE_VFUNC(c, r, f, ...) \
+  r __VFUNC_NAME(c, f)(c *this, ##__VA_ARGS__)
 
 #define DEF_VFUNC(c, r, f, ...) \
-  typedef r (*f##_t)(c *this, __VA_ARGS__); \
-  r c##_##f(c *this, __VA_ARGS__)
+  typedef r (*__VFUNC_TYPE_NAME(f))(c *this, ##__VA_ARGS__); \
+  OVERRIDE_VFUNC(c, r, f, ##__VA_ARGS__)
 
-#define OVERRIDE_VFUNC_NO_PARAM(c, r, f) \
-  r c##_##f(c *this)
-
-#define OVERRIDE_VFUNC(c, r, f, ...) \
-  r c##_##f(c *this, __VA_ARGS__)
-
-void init_vtable(vfunc vtable[], int size, ...);
-
-typedef void(*def_class)();
-
-#define DECL_SUBCLASS_VFUNCS(c, p, ...) \
-  enum c##_vfuncs \
+// macro to declare subclass-only virtual functions
+#define DECL_CLASS_VFUNCS(c, p, ...) \
+  enum __##c##_vfuncs \
   { \
-    c##_first_vfunc = p##_last_vfunc, \
+    __##c##_first_vfunc = __##p##_last_vfunc, \
     __VA_ARGS__, \
-    c##_last_vfunc, \
+    __##c##_last_vfunc, \
   }; \
 
-#define DEF_SUBCLASS_VFUNCS(c, p, ...) \
-  void def_class_##c##_vfuncs(vfunc vtable[]) \
+#define __REGISTER_CLASS_FUNC_NAME(c) \
+  __register_##c
+
+// macro to reference a class when registering
+#define CLASS_REF(c) \
+  __REGISTER_CLASS_FUNC_NAME(c)
+
+// macro to register subclass-implemented (new or overriden) virtual functions
+#define REGISTER_CLASS_VFUNCS(c, p, ...) \
+  void __register_##c##_vfuncs(__vfunc vtable[]) \
   { \
-    def_class_##p##_vfuncs(vtable); \
-    init_vtable(vtable, __VA_ARGS__); \
+    __register_##p##_vfuncs(vtable); \
+    __register_vfuncs(vtable, __VA_ARGS__, dtor, __##c##_dtor); \
   } \
-  void def_class_##c() \
+  void __REGISTER_CLASS_FUNC_NAME(c)() \
   { \
-    def_class_##c##_vfuncs(c##_vtable); \
+    __register_##c##_vfuncs(__##c##_vtable); \
   }
 
-#define DECL_CLASS_VFUNCS(c, ...) \
-  enum c##_vfuncs \
-  { \
-    c##_first_vfunc = 0, \
-    __VA_ARGS__, \
-    c##_last_vfunc, \
-  }; \
+// class virtual function registering macros
+typedef void(*__register_class_func)();
 
-#define DEF_CLASS_VFUNCS(c, ...) \
-  void def_class_##c##_vfuncs(vfunc vtable[]) \
-  { \
-    init_vtable(vtable, __VA_ARGS__); \
-  } \
-  void def_class_##c() \
-  { \
-    def_class_##c##_vfuncs(c##_vtable); \
-  }
+void __register_classes(int size, ...);
 
-void def_classes(int size, ...);
-
-#define DEF_CLASSES(...) \
+#define REGISTER_CLASSES(...) \
   void polymorphic_c_init() \
   { \
-    def_classes(__VA_ARGS__); \
+    __register_classes(__VA_ARGS__); \
   }
 
-#define VFUNC_CALL_NO_PARAM(p, f) \
-  ((f##_t)(p->vptr[f]))(p)
+#define VFUNC_CALL(this, f, ...) \
+  ((__VFUNC_TYPE_NAME(f))(this->__vptr[f]))(this, ##__VA_ARGS__)
 
-#define VFUNC_CALL(p, f, ...) \
-  ((f##_t)(p->vptr[f]))(p, __VA_ARGS__)
+#define PARENT_VFUNC_CALL(this, f, ...) \
+  VFUNC_CALL(this->__parent, f, ##__VA_ARGS__)
 
-#define PARENT_VFUNC_CALL(p, f) \
-  ((f##_t)(p->parent.vptr[fn]))(p)
-
-#define PARENT_VFUNC_CALL(p, f, ...) \
-  ((f##_t)(p->parent.vptr[fn]))(p, __VA_ARGS__)

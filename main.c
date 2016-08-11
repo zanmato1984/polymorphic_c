@@ -2,35 +2,35 @@
 
 #include <stdio.h>
 
-BEGIN_DEF_CLASS(base)
-  int dummy;
-END_DEF_CLASS(base)
-DECL_CLASS_VFUNCS(base,
+BEGIN_DEF_CLASS(base, object)
+END_DEF_CLASS(base, object)
+
+DECL_CLASS_VFUNCS(base, object,
     get_name,
     say_hello)
 
-DEF_VFUNC_NO_PARAM(base, const char *, get_name)
+DEF_VFUNC(base, const char *, get_name)
 {
   return "base";
 }
 
-DEF_VFUNC_NO_PARAM(base, void, say_hello)
+DEF_VFUNC(base, void, say_hello)
 {
-  printf("Hello, I'm %s.\n", VFUNC_CALL_NO_PARAM(this, get_name));
+  printf("Hello, I'm %s.\n", VFUNC_CALL(this, get_name));
 }
 
-DEF_CLASS_VFUNCS(base, 2,
-    get_name, base_get_name,
-    say_hello, base_say_hello)
+REGISTER_CLASS_VFUNCS(base, object, 2,
+    get_name, VFUNC_REF(base, get_name),
+    say_hello, VFUNC_REF(base, say_hello))
 
-BEGIN_DEF_SUBCLASS(derived, base)
+BEGIN_DEF_CLASS(derived, base)
   char *name;
-END_DEF_SUBCLASS(derived, base)
+END_DEF_CLASS(derived, base)
 
-DECL_SUBCLASS_VFUNCS(derived, base,
+DECL_CLASS_VFUNCS(derived, base,
     set_name)
 
-OVERRIDE_VFUNC_NO_PARAM(derived, const char *, get_name)
+OVERRIDE_VFUNC(derived, const char *, get_name)
 {
   if (this->name == NULL)
   {
@@ -44,26 +44,30 @@ DEF_VFUNC(derived, void, set_name, char *name)
   this->name = name;
 }
 
-DEF_SUBCLASS_VFUNCS(derived, base, 3,
-    say_hello, base_say_hello,
-    get_name, derived_get_name,
-    set_name, derived_set_name)
+REGISTER_CLASS_VFUNCS(derived, base, 2,
+    get_name, VFUNC_REF(derived, get_name),
+    set_name, VFUNC_REF(derived, set_name))
 
-DEF_CLASSES(2, def_class_base, def_class_derived)
+REGISTER_CLASSES(2,
+    CLASS_REF(base),
+    CLASS_REF(derived))
 
 int main()
 {
   polymorphic_c_init();
 
   base *b = new_base();
-  VFUNC_CALL_NO_PARAM(b, say_hello);
-
   derived *d = new_derived();
   base *bd = d;
-  VFUNC_CALL_NO_PARAM(bd, say_hello);
+
+  VFUNC_CALL(b, say_hello);
+  VFUNC_CALL(bd, say_hello);
   VFUNC_CALL(d, set_name, "renamed");
-  VFUNC_CALL_NO_PARAM(bd, say_hello);
-  VFUNC_CALL_NO_PARAM(d, say_hello);
+  VFUNC_CALL(bd, say_hello);
+  VFUNC_CALL(d, say_hello);
+
+  delete(b);
+  delete(bd);
 
   return 0;
 }

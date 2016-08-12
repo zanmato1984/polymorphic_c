@@ -19,7 +19,7 @@ DEF_VFUNC(base, void, say_hello)
   printf("Hello, I'm %s.\n", VFUNC_CALL(this, get_name));
 }
 
-REGISTER_CLASS_VFUNCS(base, object, 2,
+REGISTER_CLASS_VFUNCS(base, object,
     get_name, VFUNC_REF(base, get_name),
     say_hello, VFUNC_REF(base, say_hello))
 
@@ -44,11 +44,11 @@ DEF_VFUNC(derived, void, set_name, char *name)
   this->name = name;
 }
 
-REGISTER_CLASS_VFUNCS(derived, base, 2,
+REGISTER_CLASS_VFUNCS(derived, base,
     get_name, VFUNC_REF(derived, get_name),
     set_name, VFUNC_REF(derived, set_name))
 
-REGISTER_CLASSES(2,
+REGISTER_CLASSES(
     CLASS_REF(base),
     CLASS_REF(derived))
 

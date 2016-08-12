@@ -1,4 +1,8 @@
+#include <stdlib.h>
+#include <string.h>
+
 #define MAX_VFUNC 256
+#define BARRIER 0xDEADBEEF
 
 // virtual function type
 typedef void(*__vfunc)();
@@ -26,7 +30,7 @@ enum __object_vfuncs
 void __register_object_vfuncs(__vfunc vtable[]);
 
 // vtable manipulation functions
-void __register_vfuncs(__vfunc vtable[], int size, ...);
+void __register_vfuncs(__vfunc vtable[], int dummy, ...);
 
 // universal object delete function
 void delete(object *p);
@@ -69,12 +73,23 @@ void delete(object *p);
   __VFUNC_NAME(c, f)
 
 // macros to define virtual functions
+#if defined(_MSC_VER)
+#define OVERRIDE_VFUNC(c, r, f, ...) \
+  r __VFUNC_NAME(c, f)(c *this, __VA_ARGS__)
+#elif defined(__GNUC__)
 #define OVERRIDE_VFUNC(c, r, f, ...) \
   r __VFUNC_NAME(c, f)(c *this, ##__VA_ARGS__)
+#endif
 
+#if defined(_MSC_VER)
+#define DEF_VFUNC(c, r, f, ...) \
+  typedef r (*__VFUNC_TYPE_NAME(f))(c *this, __VA_ARGS__); \
+  OVERRIDE_VFUNC(c, r, f, __VA_ARGS__)
+#elif defined(__GNUC__)
 #define DEF_VFUNC(c, r, f, ...) \
   typedef r (*__VFUNC_TYPE_NAME(f))(c *this, ##__VA_ARGS__); \
   OVERRIDE_VFUNC(c, r, f, ##__VA_ARGS__)
+#endif
 
 // macro to declare subclass-only virtual functions
 #define DECL_CLASS_VFUNCS(c, p, ...) \
@@ -97,7 +112,7 @@ void delete(object *p);
   void __register_##c##_vfuncs(__vfunc vtable[]) \
   { \
     __register_##p##_vfuncs(vtable); \
-    __register_vfuncs(vtable, __VA_ARGS__, dtor, __##c##_dtor); \
+    __register_vfuncs(vtable, 0, __VA_ARGS__, dtor, __##c##_dtor, BARRIER); \
   } \
   void __REGISTER_CLASS_FUNC_NAME(c)() \
   { \
@@ -107,17 +122,35 @@ void delete(object *p);
 // class virtual function registering macros
 typedef void(*__register_class_func)();
 
-void __register_classes(int size, ...);
+void __register_classes(int dummy, ...);
 
+#if defined(_MSC_VER)
 #define REGISTER_CLASSES(...) \
   void polymorphic_c_init() \
   { \
-    __register_classes(__VA_ARGS__); \
+    __register_classes(0, __VA_ARGS__, (__register_class_func)BARRIER); \
   }
+#elif defined(__GNUC__)
+#define REGISTER_CLASSES(...) \
+  void polymorphic_c_init() \
+  { \
+    __register_classes(0, ##__VA_ARGS__, (__register_class_func)BARRIER); \
+  }
+#endif
 
+#if defined(_MSC_VER)
+#define VFUNC_CALL(this, f, ...) \
+  ((__VFUNC_TYPE_NAME(f))(this->__vptr[f]))(this, __VA_ARGS__)
+#elif defined(__GNUC__)
 #define VFUNC_CALL(this, f, ...) \
   ((__VFUNC_TYPE_NAME(f))(this->__vptr[f]))(this, ##__VA_ARGS__)
+#endif
 
+#if defined(_MSC_VER)
+#define PARENT_VFUNC_CALL(this, f, ...) \
+  VFUNC_CALL(this->__parent, f, __VA_ARGS__)
+#elif defined(__GNUC__)
 #define PARENT_VFUNC_CALL(this, f, ...) \
   VFUNC_CALL(this->__parent, f, ##__VA_ARGS__)
+#endif
 

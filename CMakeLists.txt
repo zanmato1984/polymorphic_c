@@ -1,4 +1,6 @@
 cmake_minimum_required (VERSION 2.8.11)
 project (polymorphic_c)
 
-add_executable (main main.c polymorphic_c.c)
+add_executable (cpp_main cpp/main.cpp cpp/main.cpp)
+add_executable (c_main c/main.c c/main.c)
+add_executable (pc_main pc/main.c pc/polymorphic_c.c)

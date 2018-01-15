@@ -21,7 +21,7 @@ CMake
 mkdir build
 cd build
 cmake ..
-make [cpp|c|pc]
+make [cpp_main|c_main|pc_main]
 ```
 
 ## Features

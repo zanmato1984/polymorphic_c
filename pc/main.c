@@ -9,13 +9,11 @@ DECL_CLASS_VFUNCS(base, object,
     get_name,
     say_hello)
 
-DEF_VFUNC(base, const char *, get_name)
-{
+DEF_VFUNC(base, const char *, get_name) {
   return "base";
 }
 
-DEF_VFUNC(base, void, say_hello)
-{
+DEF_VFUNC(base, void, say_hello) {
   printf("Hello, I'm %s.\n", VFUNC_CALL(this, get_name));
 }
 
@@ -30,17 +28,14 @@ END_DEF_CLASS(derived, base)
 DECL_CLASS_VFUNCS(derived, base,
     set_name)
 
-OVERRIDE_VFUNC(derived, const char *, get_name)
-{
-  if (this->name == NULL)
-  {
+OVERRIDE_VFUNC(derived, const char *, get_name) {
+  if (this->name == NULL) {
     return "derived";
   }
   return this->name;
 }
 
-DEF_VFUNC(derived, void, set_name, char *name)
-{
+DEF_VFUNC(derived, void, set_name, char *name) {
   this->name = name;
 }
 
@@ -52,8 +47,7 @@ REGISTER_CLASSES(
     CLASS_REF(base),
     CLASS_REF(derived))
 
-int main()
-{
+int main() {
   polymorphic_c_init();
 
   base *b = new_base();

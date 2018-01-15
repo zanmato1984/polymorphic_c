@@ -16,12 +16,12 @@ void __register_object_vfuncs(__vfunc vtable[])
   __object_vtable[dtor] = __object_dtor;
 }
 
-void __register_vfuncs(__vfunc vtable[], int dummy, ...)
+void __register_vfuncs(__vfunc vtable[], ...)
 {
   va_list args;
-  va_start(args, dummy);
+  va_start(args, vtable);
   int e = va_arg(args, int);
-  while (e != BARRIER)
+  while (e != MAX_VFUNC)
   {
     vtable[e] = va_arg(args, __vfunc);
     e = va_arg(args, int);
@@ -34,7 +34,7 @@ void __register_classes(int dummy, ...)
   va_list args;
   va_start(args, dummy);
   __register_class_func f = va_arg(args, __register_class_func);
-  while (f != (__register_class_func)BARRIER)
+  while (f != (__register_class_func)NULL)
   {
     f();
     f = va_arg(args, __register_class_func);
@@ -47,4 +47,3 @@ void delete(object *p)
   VFUNC_CALL(p, dtor);
   free(p);
 }
-

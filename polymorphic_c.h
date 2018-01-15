@@ -2,7 +2,6 @@
 #include <string.h>
 
 #define MAX_VFUNC 256
-#define BARRIER 0xDEADBEEF
 
 // virtual function type
 typedef void(*__vfunc)();
@@ -30,7 +29,7 @@ enum __object_vfuncs
 void __register_object_vfuncs(__vfunc vtable[]);
 
 // vtable manipulation functions
-void __register_vfuncs(__vfunc vtable[], int dummy, ...);
+void __register_vfuncs(__vfunc vtable[], ...);
 
 // universal object delete function
 void delete(object *p);
@@ -112,7 +111,7 @@ void delete(object *p);
   void __register_##c##_vfuncs(__vfunc vtable[]) \
   { \
     __register_##p##_vfuncs(vtable); \
-    __register_vfuncs(vtable, 0, __VA_ARGS__, dtor, __##c##_dtor, BARRIER); \
+    __register_vfuncs(vtable, __VA_ARGS__, dtor, __##c##_dtor, MAX_VFUNC); \
   } \
   void __REGISTER_CLASS_FUNC_NAME(c)() \
   { \
@@ -128,13 +127,13 @@ void __register_classes(int dummy, ...);
 #define REGISTER_CLASSES(...) \
   void polymorphic_c_init() \
   { \
-    __register_classes(0, __VA_ARGS__, (__register_class_func)BARRIER); \
+    __register_classes(0, __VA_ARGS__, (__register_class_func)NULL); \
   }
 #elif defined(__GNUC__)
 #define REGISTER_CLASSES(...) \
   void polymorphic_c_init() \
   { \
-    __register_classes(0, ##__VA_ARGS__, (__register_class_func)BARRIER); \
+    __register_classes(0, ##__VA_ARGS__, (__register_class_func)NULL); \
   }
 #endif
 
@@ -153,4 +152,3 @@ void __register_classes(int dummy, ...);
 #define PARENT_VFUNC_CALL(this, f, ...) \
   VFUNC_CALL(this->__parent, f, ##__VA_ARGS__)
 #endif
-

@@ -1,5 +1,5 @@
 project (polymorphic_c)
 
-add_executable (cpp_main cpp/main.cpp)
-add_executable (c_main c/main.c)
-add_executable (pc_main pc/main.c pc/polymorphic_c.c)
+add_executable (demo_cpp cpp/main.cpp)
+add_executable (demo_c c/main.c)
+add_executable (demo_pc pc/main.c pc/polymorphic_c.c)

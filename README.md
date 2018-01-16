@@ -21,7 +21,7 @@ CMake
 mkdir build
 cd build
 cmake ..
-make [cpp_main|c_main|pc_main]
+make [demo_cpp|demo_c|demo_pc]
 ```
 
 ## Features

@@ -9,11 +9,11 @@ DECL_CLASS_VFUNCS(base, object,
                   get_name,
                   say_hello)
 
-DEF_VFUNC(base, const char *, get_name) {
+DEF_VFUNC(const char *, base, get_name) {
   return "base";
 }
 
-DEF_VFUNC(base, void, say_hello) {
+DEF_VFUNC(void, base, say_hello) {
   printf("Hello, I'm %s.\n", VFUNC_CALL(this, get_name));
 }
 
@@ -27,14 +27,14 @@ END_DEF_CLASS(derived, base)
 DECL_CLASS_VFUNCS(derived, base,
                   set_name)
 
-OVERRIDE_VFUNC(derived, const char *, get_name) {
+OVERRIDE_VFUNC(const char *, derived, get_name) {
   if (this->parent.name == NULL) {
     return "derived";
   }
   return this->parent.name;
 }
 
-DEF_VFUNC(derived, void, set_name, char *name) {
+DEF_VFUNC(void, derived, set_name, char *name) {
   this->parent.name = name;
 }
 

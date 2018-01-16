@@ -65,12 +65,12 @@ void delete(object *p);
   __VFUNC_NAME(c, f)
 
 // macros to define virtual functions
-#define OVERRIDE_VFUNC(c, r, f, ...) \
+#define OVERRIDE_VFUNC(r, c, f, ...) \
   r __VFUNC_NAME(c, f)(c *this, ##__VA_ARGS__)
 
-#define DEF_VFUNC(c, r, f, ...) \
+#define DEF_VFUNC(r, c, f, ...) \
   typedef r (*__VFUNC_TYPE_NAME(f))(c *this, ##__VA_ARGS__); \
-  OVERRIDE_VFUNC(c, r, f, ##__VA_ARGS__)
+  OVERRIDE_VFUNC(r, c, f, ##__VA_ARGS__)
 
 // macro to declare subclass-only virtual functions
 #define DECL_CLASS_VFUNCS(c, p, ...) \
@@ -78,7 +78,7 @@ void delete(object *p);
     __##c##_first_vfunc = __##p##_last_vfunc, \
     __VA_ARGS__, \
     __##c##_last_vfunc, \
-  }; \
+  };
 
 #define __REGISTER_CLASS_FUNC_NAME(c) \
   __register_##c

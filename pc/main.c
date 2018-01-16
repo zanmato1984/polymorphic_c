@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 BEGIN_DEF_CLASS(base, object)
+  char *name;
 END_DEF_CLASS(base, object)
 
 DECL_CLASS_VFUNCS(base, object,
@@ -22,21 +23,20 @@ REGISTER_CLASS_VFUNCS(base, object,
                       say_hello, VFUNC_REF(base, say_hello))
 
 BEGIN_DEF_CLASS(derived, base)
-  char *name;
 END_DEF_CLASS(derived, base)
 
 DECL_CLASS_VFUNCS(derived, base,
                   set_name)
 
 OVERRIDE_VFUNC(derived, const char *, get_name) {
-  if (this->name == NULL) {
+  if (this->parent.name == NULL) {
     return "derived";
   }
-  return this->name;
+  return this->parent.name;
 }
 
 DEF_VFUNC(derived, void, set_name, char *name) {
-  this->name = name;
+  this->parent.name = name;
 }
 
 REGISTER_CLASS_VFUNCS(derived, base,

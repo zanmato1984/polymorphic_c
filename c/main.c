@@ -24,6 +24,7 @@ vfunc_t base_vtable[256];
 
 typedef struct {
   vfunc_t *vptr;
+  const char *name;
 } base;
 
 void base_ctor(base *this) {
@@ -67,11 +68,10 @@ vfunc_t derived_vtable[256];
 
 typedef struct {
   base parent;
-  const char *name;
 } derived;
 
 void derived_ctor(derived *this) {
-  base_ctor(&this->parent);
+  base_ctor(this);
   this->parent.vptr = derived_vtable;
 }
 
@@ -93,14 +93,14 @@ enum {
 typedef void (*set_name_t)(base *this, const char *name);
 
 const char *derived_get_name(derived *this) {
-  if (this->name == NULL) {
+  if (this->parent.name == NULL) {
     return "derived";
   }
-  return this->name;
+  return this->parent.name;
 }
 
 void derived_set_name(derived *this, const char *name) {
-  this->name = name;
+  this->parent.name = name;
 }
 
 void register_derived(vfunc_t *vtable) {

@@ -36,12 +36,12 @@ void delete(object *p);
 #define BEGIN_DEF_CLASS(c, p) \
   __vfunc_t __##c##_vtable[MAX_VFUNC]; \
   typedef struct { \
-    p __parent;
+    p parent;
 
 #define END_DEF_CLASS(c, p) \
   } c; \
   void __##c##_ctor(c *this) { \
-    __##p##_ctor(&this->__parent); \
+    __##p##_ctor(this); \
     *(__vfunc_t **)this = __##c##_vtable; \
   } \
   c *new_##c() { \

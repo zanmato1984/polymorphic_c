@@ -4,6 +4,9 @@ class base {
 public:
   virtual const char *get_name();
   virtual void say_hello();
+
+protected:
+  const char *name;
 };
 
 const char *base::get_name() {
@@ -18,8 +21,6 @@ class derived : public base {
 public:
   virtual const char *get_name();
   virtual void set_name(const char *name);
-private:
-  const char *name;
 };
 
 const char *derived::get_name() {

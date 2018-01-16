@@ -36,14 +36,13 @@ void delete(object *p);
 #define BEGIN_DEF_CLASS(c, p) \
   __vfunc_t __##c##_vtable[MAX_VFUNC]; \
   typedef struct { \
-    __vfunc_t *__vptr; \
     p __parent;
 
 #define END_DEF_CLASS(c, p) \
   } c; \
   void __##c##_ctor(c *this) { \
     __##p##_ctor(&this->__parent); \
-    this->__vptr = __##c##_vtable; \
+    *(__vfunc_t **)this = __##c##_vtable; \
   } \
   c *new_##c() { \
     c *this = malloc(sizeof(c)); \
@@ -109,7 +108,4 @@ void __register_classes(int dummy, ...);
   }
 
 #define VFUNC_CALL(this, f, ...) \
-  ((__VFUNC_TYPE_NAME(f))(this->__vptr[f]))(this, ##__VA_ARGS__)
-
-#define PARENT_VFUNC_CALL(this, f, ...) \
-  VFUNC_CALL(this->__parent, f, ##__VA_ARGS__)
+  ((__VFUNC_TYPE_NAME(f))(*(__vfunc_t **)this)[f])(this, ##__VA_ARGS__)

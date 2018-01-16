@@ -16,6 +16,10 @@ void delete(void *p) {
   free(p);
 }
 
+vfunc_t vfunc(void *p, int e_vfunc) {
+  return (*(vfunc_t **)p)[e_vfunc];
+}
+
 vfunc_t base_vtable[256];
 
 typedef struct {
@@ -62,14 +66,13 @@ void register_base(vfunc_t *vtable) {
 vfunc_t derived_vtable[256];
 
 typedef struct {
-  vfunc_t *vptr;
   base parent;
   const char *name;
 } derived;
 
 void derived_ctor(derived *this) {
   base_ctor(&this->parent);
-  this->vptr = derived_vtable;
+  this->parent.vptr = derived_vtable;
 }
 
 derived *new_derived() {
@@ -115,11 +118,11 @@ int main() {
   derived *d = new_derived();
   base *bd = (base *) d;
 
-  ((say_hello_t)b->vptr[say_hello])(b);
-  ((say_hello_t)bd->vptr[say_hello])(bd);
-  ((set_name_t)d->vptr[set_name])(d, "renamed");
-  ((say_hello_t)bd->vptr[say_hello])(bd);
-  ((say_hello_t)d->vptr[say_hello])(d);
+  ((say_hello_t)vfunc(b, say_hello))(b);
+  ((say_hello_t)vfunc(bd, say_hello))(bd);
+  ((set_name_t)vfunc(d, set_name))(d, "renamed");
+  ((say_hello_t)vfunc(bd, say_hello))(bd);
+  ((say_hello_t)vfunc(d, say_hello))(d);
 
   delete(b);
   delete(bd);

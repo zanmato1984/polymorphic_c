@@ -76,7 +76,7 @@ void delete(object *p);
 #define DECL_CLASS_VFUNCS(c, p, ...) \
   enum { \
     __##c##_first_vfunc = __##p##_last_vfunc, \
-    __VA_ARGS__, \
+    ##__VA_ARGS__, \
     __##c##_last_vfunc, \
   };
 
@@ -91,7 +91,7 @@ void delete(object *p);
 #define REGISTER_CLASS_VFUNCS(c, p, ...) \
   void __register_##c##_vfuncs(__vfunc_t vtable[]) { \
     __register_##p##_vfuncs(vtable); \
-    __register_vfuncs(vtable, __VA_ARGS__, dtor, __##c##_dtor, MAX_VFUNC); \
+    __register_vfuncs(vtable, ##__VA_ARGS__, dtor, __##c##_dtor, MAX_VFUNC); \
   } \
   void __REGISTER_CLASS_FUNC_NAME(c)() { \
     __register_##c##_vfuncs(__##c##_vtable); \

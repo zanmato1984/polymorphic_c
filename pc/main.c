@@ -1,5 +1,4 @@
 #include "polymorphic_c.h"
-
 #include <stdio.h>
 
 BEGIN_DEF_CLASS(base, object)

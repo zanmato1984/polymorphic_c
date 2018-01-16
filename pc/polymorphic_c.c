@@ -1,5 +1,4 @@
 #include "polymorphic_c.h"
-
 #include <stdarg.h>
 
 void __object_ctor(object *this) {

@@ -41,7 +41,7 @@ void delete(object *p);
 #define END_DEF_CLASS(c, p) \
   } c; \
   void __##c##_ctor(c *this) { \
-    __##p##_ctor(this); \
+    __##p##_ctor((p *)this); \
     *(__vfunc_t **)this = __##c##_vtable; \
   } \
   c *new_##c() { \
@@ -51,7 +51,7 @@ void delete(object *p);
     return this; \
   } \
   void __##c##_dtor(c *this) { \
-    __##p##_dtor(this); \
+    __##p##_dtor((p *)this); \
   }
 
 #define __VFUNC_NAME(c, f) \

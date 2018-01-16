@@ -50,16 +50,16 @@ int main() {
 
   base *b = new_base();
   derived *d = new_derived();
-  base *bd = d;
+  base *bd = (base *)d;
 
   VFUNC_CALL(b, say_hello);
   VFUNC_CALL(bd, say_hello);
   VFUNC_CALL(d, set_name, "renamed");
   VFUNC_CALL(bd, say_hello);
-  VFUNC_CALL(d, say_hello);
+  VFUNC_CALL((base *)d, say_hello);
 
-  delete(b);
-  delete(bd);
+  delete((object *)b);
+  delete((object *)bd);
 
   return 0;
 }

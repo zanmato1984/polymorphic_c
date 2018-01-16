@@ -59,9 +59,9 @@ void base_say_hello(base *this) {
 }
 
 void register_base(vfunc_t *vtable) {
-  vtable[dtor] = base_dtor;
-  vtable[get_name] = base_get_name;
-  vtable[say_hello] = base_say_hello;
+  vtable[dtor] = (vfunc_t)base_dtor;
+  vtable[get_name] = (vfunc_t)base_get_name;
+  vtable[say_hello] = (vfunc_t)base_say_hello;
 }
 
 vfunc_t derived_vtable[MAX_VFUNC];
@@ -71,7 +71,7 @@ typedef struct {
 } derived;
 
 void derived_ctor(derived *this) {
-  base_ctor(this);
+  base_ctor((base *)this);
   this->parent.vptr = derived_vtable;
 }
 
@@ -83,7 +83,7 @@ derived *new_derived() {
 }
 
 void derived_dtor(derived *this) {
-  base_dtor(this);
+  base_dtor((base *)this);
 }
 
 enum {
@@ -105,9 +105,9 @@ void derived_set_name(derived *this, const char *name) {
 
 void register_derived(vfunc_t *vtable) {
   register_base(vtable);
-  vtable[dtor] = derived_dtor;
-  vtable[get_name] = derived_get_name;
-  vtable[set_name] = derived_set_name;
+  vtable[dtor] = (vfunc_t)derived_dtor;
+  vtable[get_name] = (vfunc_t)derived_get_name;
+  vtable[set_name] = (vfunc_t)derived_set_name;
 }
 
 int main() {
@@ -120,9 +120,9 @@ int main() {
 
   ((say_hello_t)vfunc(b, say_hello))(b);
   ((say_hello_t)vfunc(bd, say_hello))(bd);
-  ((set_name_t)vfunc(d, set_name))(d, "renamed");
+  ((set_name_t)vfunc(d, set_name))((base *)d, "renamed");
   ((say_hello_t)vfunc(bd, say_hello))(bd);
-  ((say_hello_t)vfunc(d, say_hello))(d);
+  ((say_hello_t)vfunc(d, say_hello))((base *)d);
 
   delete(b);
   delete(bd);

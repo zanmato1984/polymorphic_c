@@ -23,8 +23,7 @@ void __register_vfuncs(__vfunc_t vtable[], ...) {
   va_end(args);
 }
 
-void __register_classes(int dummy, ...)
-{
+void __register_classes(int dummy, ...) {
   va_list args;
   va_start(args, dummy);
   __register_class_func_t f = va_arg(args, __register_class_func_t);
@@ -35,8 +34,7 @@ void __register_classes(int dummy, ...)
   va_end(args);
 }
 
-void delete(object *p)
-{
+void delete(object *p) {
   VFUNC_CALL(p, dtor);
   free(p);
 }

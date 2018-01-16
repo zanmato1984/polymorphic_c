@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 BEGIN_DEF_CLASS(base, object)
-  char *name;
+  const char *name;
 END_DEF_CLASS(base, object)
 
 DECL_CLASS_VFUNCS(base, object,
@@ -34,7 +34,7 @@ OVERRIDE_VFUNC(const char *, derived, get_name) {
   return this->parent.name;
 }
 
-DEF_VFUNC(void, derived, set_name, char *name) {
+DEF_VFUNC(void, derived, set_name, const char *name) {
   this->parent.name = name;
 }
 

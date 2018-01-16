@@ -20,7 +20,7 @@ vfunc_t vfunc(void *p, int e_vfunc) {
   return (*(vfunc_t **)p)[e_vfunc];
 }
 
-vfunc_t base_vtable[256];
+vfunc_t base_vtable[MAX_VFUNC];
 
 typedef struct {
   vfunc_t *vptr;
@@ -64,7 +64,7 @@ void register_base(vfunc_t *vtable) {
   vtable[say_hello] = base_say_hello;
 }
 
-vfunc_t derived_vtable[256];
+vfunc_t derived_vtable[MAX_VFUNC];
 
 typedef struct {
   base parent;

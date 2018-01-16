@@ -4,7 +4,7 @@
 
 #define MAX_VFUNC 256
 
-typedef void(*vfunc_t)();
+typedef void (*vfunc_t)();
 typedef void (*dtor_t)(void *this);
 
 enum e_vfuncs {

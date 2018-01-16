@@ -4,7 +4,7 @@
 #define MAX_VFUNC 256
 
 // virtual function type
-typedef void(*__vfunc_t)();
+typedef void (*__vfunc_t)();
 
 // single inheritance root class object
 __vfunc_t __object_vtable[1];
@@ -98,7 +98,7 @@ void delete(object *p);
   }
 
 // class virtual function registering macros
-typedef void(*__register_class_func_t)();
+typedef void (*__register_class_func_t)();
 
 void __register_classes(int dummy, ...);
 

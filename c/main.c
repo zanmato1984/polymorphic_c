@@ -55,7 +55,7 @@ const char *base_get_name(base *this) {
 }
 
 void base_say_hello(base *this) {
-  printf("Hello, I'm %s.\n", ((get_name_t)this->vptr[get_name])(this));
+  printf("Hello, I'm %s.\n", ((get_name_t)vfunc(this, get_name))(this));
 }
 
 void register_base(vfunc_t *vtable) {

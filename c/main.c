@@ -7,17 +7,17 @@
 typedef void (*vfunc_t)();
 typedef void (*dtor_t)(void *this);
 
+vfunc_t vfunc(void *p, int e_vfunc) {
+  return (*(vfunc_t **)p)[e_vfunc];
+}
+
 enum {
   dtor = 0,
 };
 
 void delete(void *p) {
-  ((dtor_t)(*(vfunc_t **)p)[dtor])(p);
+  ((dtor_t)vfunc(p, dtor))(p);
   free(p);
-}
-
-vfunc_t vfunc(void *p, int e_vfunc) {
-  return (*(vfunc_t **)p)[e_vfunc];
 }
 
 vfunc_t base_vtable[MAX_VFUNC];

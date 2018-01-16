@@ -7,7 +7,7 @@
 typedef void (*vfunc_t)();
 typedef void (*dtor_t)(void *this);
 
-enum e_vfuncs {
+enum {
   dtor = 0,
 };
 
@@ -40,7 +40,7 @@ base *new_base() {
 void base_dtor(base *this) {
 }
 
-enum e_base_vfuncs {
+enum {
   get_name = dtor + 1,
   say_hello,
 };
@@ -86,7 +86,7 @@ void derived_dtor(derived *this) {
   base_dtor(this);
 }
 
-enum e_derived_vfuncs {
+enum {
   set_name = say_hello + 1,
 };
 

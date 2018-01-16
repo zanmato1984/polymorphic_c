@@ -19,7 +19,7 @@ typedef void (*__dtor_t)(object *this);
 
 void __object_dtor(object *this);
 
-enum __object_vfuncs {
+enum {
   dtor = 0,
   __object_last_vfunc,
 };
@@ -74,7 +74,7 @@ void delete(object *p);
 
 // macro to declare subclass-only virtual functions
 #define DECL_CLASS_VFUNCS(c, p, ...) \
-  enum __##c##_vfuncs { \
+  enum { \
     __##c##_first_vfunc = __##p##_last_vfunc, \
     __VA_ARGS__, \
     __##c##_last_vfunc, \

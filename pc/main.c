@@ -71,8 +71,8 @@ int main() {
   VFUNC_CALL(bd, say_hello);
   VFUNC_CALL((base *)d, say_hello);
 
-  delete((object *)b);
-  delete((object *)bd);
+  delete(b);
+  delete(bd);
 
   return 0;
 }

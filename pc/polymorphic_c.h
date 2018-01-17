@@ -30,7 +30,7 @@ void __register_object_vfuncs(__vfunc_t vtable[]);
 void __register_vfuncs(__vfunc_t vtable[], ...);
 
 // universal object delete function
-void delete(object *p);
+void delete(void *p);
 
 // macros to define classes
 #define BEGIN_DEF_CLASS(c, p) \

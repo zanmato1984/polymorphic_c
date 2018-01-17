@@ -34,7 +34,7 @@ void __register_classes(int dummy, ...) {
   va_end(args);
 }
 
-void delete(object *p) {
+void delete(void *p) {
   VFUNC_CALL(p, dtor);
   free(p);
 }

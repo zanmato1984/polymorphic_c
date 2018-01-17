@@ -3,11 +3,20 @@
 
 #define MAX_VFUNC 256
 
-// virtual function type
+// type of virtual table entry.
 typedef void (*__vfunc_t)();
 
-// single inheritance root class object
+// universal new operator
+#define new(c) \
+  __##c##_ctor(malloc(sizeof(c)))
+
+// universal delete operator
+void delete(void *p);
+
+//// single inheritance root class 'object' and related stuff.
 __vfunc_t __object_vtable[1];
+
+struct object;
 
 typedef struct {
   __vfunc_t *__vptr;
@@ -25,18 +34,9 @@ enum {
 };
 
 void __register_object_vfuncs(__vfunc_t vtable[]);
+////
 
-// vtable manipulation functions
-void __register_vfuncs(__vfunc_t vtable[], ...);
-
-// universal new operator
-#define new(c) \
-  __##c##_ctor(malloc(sizeof(c)))
-
-// universal object delete function
-void delete(void *p);
-
-// macros to define classe
+//// class define stuff.
 #define BEGIN_DEF_CLASS(c, p) \
   __vfunc_t __##c##_vtable[MAX_VFUNC]; \
   typedef struct { \
@@ -57,24 +57,23 @@ void delete(void *p);
     __##p##_dtor((p *)this); \
   }
 
-#define __VFUNC_NAME(c, f) \
-  __##c##_##f
+#define DECL_CLASS_VFUNCS(c, p, ...) \
+  enum { \
+    __##c##_first_vfunc = __##p##_last_vfunc, \
+    ##__VA_ARGS__, \
+    __##c##_last_vfunc, \
+  };
+////
 
-#define __VFUNC_TYPE_NAME(f) \
-  __##f##_t
-
-// macros to define constructor and destructor
+//// constructor and destructor stuff
 #define DEF_CTOR(c) \
   void __##c##_ctor_internal(c *this)
 
 #define DEF_DTOR(c) \
   void __##c##_dtor_internal(c *this)
+////
 
-// macro to reference a vfunc when registering
-#define VFUNC_REF(c, f) \
-  __VFUNC_NAME(c, f)
-
-// macros to define virtual functions
+//// virtual function stuff
 #define OVERRIDE_VFUNC(r, c, f, ...) \
   r __VFUNC_NAME(c, f)(c *this, ##__VA_ARGS__)
 
@@ -82,22 +81,32 @@ void delete(void *p);
   typedef r (*__VFUNC_TYPE_NAME(f))(c *this, ##__VA_ARGS__); \
   OVERRIDE_VFUNC(r, c, f, ##__VA_ARGS__)
 
-// macro to declare subclass-only virtual functions
-#define DECL_CLASS_VFUNCS(c, p, ...) \
-  enum { \
-    __##c##_first_vfunc = __##p##_last_vfunc, \
-    ##__VA_ARGS__, \
-    __##c##_last_vfunc, \
-  };
+#define VFUNC_CALL(this, f, ...) \
+  ((__VFUNC_TYPE_NAME(f))(*(__vfunc_t **)this)[f])(this, ##__VA_ARGS__)
+////
+
+//// internal names
+#define __VFUNC_NAME(c, f) \
+  __##c##_##f
+
+#define __VFUNC_TYPE_NAME(f) \
+  __##f##_t
 
 #define __REGISTER_CLASS_FUNC_NAME(c) \
   __register_##c
+////
 
-// macro to reference a class when registering
+//// virtual function and class referencing stuff
+#define VFUNC_REF(c, f) \
+  __VFUNC_NAME(c, f)
+
 #define CLASS_REF(c) \
   __REGISTER_CLASS_FUNC_NAME(c)
+////
 
-// macro to register subclass-implemented (new or overriden) virtual functions
+//// virtual function registering stuff.
+void __register_vfuncs(__vfunc_t vtable[], ...);
+
 #define REGISTER_CLASS_VFUNCS(c, p, ...) \
   void __register_##c##_vfuncs(__vfunc_t vtable[]) { \
     __register_##p##_vfuncs(vtable); \
@@ -106,8 +115,9 @@ void delete(void *p);
   void __REGISTER_CLASS_FUNC_NAME(c)() { \
     __register_##c##_vfuncs(__##c##_vtable); \
   }
+////
 
-// class virtual function registering macros
+//// class registering stuff.
 typedef void (*__register_class_func_t)();
 
 void __register_classes(int dummy, ...);
@@ -116,6 +126,4 @@ void __register_classes(int dummy, ...);
   void polymorphic_c_init() { \
     __register_classes(0, ##__VA_ARGS__, NULL); \
   }
-
-#define VFUNC_CALL(this, f, ...) \
-  ((__VFUNC_TYPE_NAME(f))(*(__vfunc_t **)this)[f])(this, ##__VA_ARGS__)
+////

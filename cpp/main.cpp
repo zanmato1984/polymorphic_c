@@ -2,12 +2,21 @@
 
 class base {
 public:
+  base();
+  virtual ~base();
   virtual const char *get_name();
   virtual void say_hello();
 
 protected:
   const char *name;
 };
+
+base::base()
+    : name(NULL) {
+}
+
+base::~base() {
+}
 
 const char *base::get_name() {
   return "base";
@@ -19,9 +28,17 @@ void base::say_hello() {
 
 class derived : public base {
 public:
+  derived();
+  virtual ~derived();
   virtual const char *get_name();
   virtual void set_name(const char *name);
 };
+
+derived::derived() {
+}
+
+derived::~derived() {
+}
 
 const char *derived::get_name() {
   if (name == NULL) {

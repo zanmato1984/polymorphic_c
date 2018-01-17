@@ -9,6 +9,13 @@ DECL_CLASS_VFUNCS(base, object,
                   get_name,
                   say_hello)
 
+DEF_CTOR(base) {
+  this->name = NULL;
+}
+
+DEF_DTOR(base) {
+}
+
 DEF_VFUNC(const char *, base, get_name) {
   return "base";
 }
@@ -26,6 +33,12 @@ END_DEF_CLASS(derived, base)
 
 DECL_CLASS_VFUNCS(derived, base,
                   set_name)
+
+DEF_CTOR(derived) {
+}
+
+DEF_DTOR(derived) {
+}
 
 OVERRIDE_VFUNC(const char *, derived, get_name) {
   if (this->parent.name == NULL) {

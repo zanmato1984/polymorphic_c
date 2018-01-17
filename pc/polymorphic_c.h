@@ -40,8 +40,10 @@ void delete(object *p);
 
 #define END_DEF_CLASS(c, p) \
   } c; \
+  void __##c##_ctor_internal(c *this); \
   void __##c##_ctor(c *this) { \
     __##p##_ctor((p *)this); \
+    __##c##_ctor_internal(this); \
     *(__vfunc_t **)this = __##c##_vtable; \
   } \
   c *new_##c() { \
@@ -50,7 +52,9 @@ void delete(object *p);
     __##c##_ctor(this); \
     return this; \
   } \
+  void __##c##_dtor_internal(c *this); \
   void __##c##_dtor(c *this) { \
+    __##c##_dtor_internal(this); \
     __##p##_dtor((p *)this); \
   }
 
@@ -59,6 +63,13 @@ void delete(object *p);
 
 #define __VFUNC_TYPE_NAME(f) \
   __##f##_t
+
+// macros to define constructor and destructor
+#define DEF_CTOR(c) \
+  void __##c##_ctor_internal(c *this)
+
+#define DEF_DTOR(c) \
+  void __##c##_dtor_internal(c *this)
 
 // macro to reference a vfunc when registering
 #define VFUNC_REF(c, f) \

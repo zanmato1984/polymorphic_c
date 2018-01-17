@@ -28,7 +28,8 @@ make [demo_cpp|demo_c|demo_pc]
 
 1. Class define.
 2. Inheritance.
-3. Virtual function define/override. 
+3. User-defined ctor and dtor.
+4. Virtual function define/override.
 
 ## Usage
 
@@ -37,7 +38,7 @@ See `pc/main.c`.
 ## Limitations
 
 1. Max number of member functions in a single class is fixed.
-2. User-defined ctor and dtor are not supported yet.
+2. User-defined ctor with parameters is not supported yet.
 3. Function overload, both intra and inter-class, is not supported yet.
 4. Access control is not supported yet.
 5. Multi-inheritance is not supported yet.

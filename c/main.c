@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <memory.h>
 
 #define MAX_VFUNC 256
 
@@ -29,11 +28,11 @@ typedef struct {
 
 void base_ctor(base *this) {
   this->vptr = base_vtable;
+  this->name = NULL;
 }
 
 base *new_base() {
   base *this = malloc(sizeof(base));
-  memset(this, 0, sizeof(base));
   base_ctor(this);
   return this;
 }
@@ -77,7 +76,6 @@ void derived_ctor(derived *this) {
 
 derived *new_derived() {
   derived *this = malloc(sizeof(derived));
-  memset(this, 0, sizeof(derived));
   derived_ctor(this);
   return this;
 }

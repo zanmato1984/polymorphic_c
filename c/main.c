@@ -6,16 +6,16 @@
 typedef void (*vfunc_t)();
 typedef void (*dtor_t)(void *this);
 
-vfunc_t vfunc(void *p, int e_vfunc) {
-  return (*(vfunc_t **)p)[e_vfunc];
+vfunc_t vfunc(void *this, int e) {
+  return (*(vfunc_t **)this)[e];
 }
 
 enum {
   dtor = 0,
 };
 
-void delete(void *p) {
-  ((dtor_t)vfunc(p, dtor))(p);
+void delete(void *this) {
+  ((dtor_t)vfunc(this, dtor))(p);
   free(p);
 }
 
@@ -114,7 +114,7 @@ int main() {
 
   base *b = new_base();
   derived *d = new_derived();
-  base *bd = (base *) d;
+  base *bd = (base *)d;
 
   ((say_hello_t)vfunc(b, say_hello))(b);
   ((say_hello_t)vfunc(bd, say_hello))(bd);

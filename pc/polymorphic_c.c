@@ -1,6 +1,11 @@
 #include "polymorphic_c.h"
 #include <stdarg.h>
 
+void delete(void *this) {
+  VFUNC_CALL(this, dtor);
+  free(this);
+}
+
 void __object_ctor(object *this) {
   this->__vptr = __object_vtable;
 }
@@ -8,11 +13,11 @@ void __object_ctor(object *this) {
 void __object_dtor(object *this) {
 }
 
-void __register_object_vfuncs(__vfunc_t vtable[]) {
+void __register_object_vfuncs(__vfunc_t *vtable) {
   __object_vtable[dtor] = __object_dtor;
 }
 
-void __register_vfuncs(__vfunc_t vtable[], ...) {
+void __register_vfuncs(__vfunc_t *vtable, ...) {
   va_list args;
   va_start(args, vtable);
   int e = va_arg(args, int);
@@ -32,9 +37,4 @@ void __register_classes(int dummy, ...) {
     f = va_arg(args, __register_class_func_t);
   }
   va_end(args);
-}
-
-void delete(void *p) {
-  VFUNC_CALL(p, dtor);
-  free(p);
 }

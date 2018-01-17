@@ -3,15 +3,29 @@
 
 #define MAX_VFUNC 256
 
-// type of virtual table entry.
-typedef void (*__vfunc_t)();
-
 // universal new operator
 #define new(c) \
   __##c##_ctor(malloc(sizeof(c)))
 
 // universal delete operator
-void delete(void *p);
+void delete(void *this);
+
+//// virtual function stuff
+typedef void (*__vfunc_t)();
+
+#define __VPTR(this) \
+  (*(__vfunc_t **)(this))
+
+#define OVERRIDE_VFUNC(r, c, f, ...) \
+  r __VFUNC_NAME(c, f)(c *this, ##__VA_ARGS__)
+
+#define DEF_VFUNC(r, c, f, ...) \
+  typedef r (*__VFUNC_TYPE_NAME(f))(c *this, ##__VA_ARGS__); \
+  OVERRIDE_VFUNC(r, c, f, ##__VA_ARGS__)
+
+#define VFUNC_CALL(this, f, ...) \
+  ((__VFUNC_TYPE_NAME(f))__VPTR(this)[f])(this, ##__VA_ARGS__)
+////
 
 //// single inheritance root class 'object' and related stuff.
 __vfunc_t __object_vtable[1];
@@ -48,7 +62,7 @@ void __register_object_vfuncs(__vfunc_t vtable[]);
   c *__##c##_ctor(c *this) { \
     __##p##_ctor((p *)this); \
     __##c##_ctor_internal(this); \
-    *(__vfunc_t **)this = __##c##_vtable; \
+    __VPTR(this) = __##c##_vtable; \
     return this; \
   } \
   void __##c##_dtor_internal(c *this); \
@@ -73,18 +87,6 @@ void __register_object_vfuncs(__vfunc_t vtable[]);
   void __##c##_dtor_internal(c *this)
 ////
 
-//// virtual function stuff
-#define OVERRIDE_VFUNC(r, c, f, ...) \
-  r __VFUNC_NAME(c, f)(c *this, ##__VA_ARGS__)
-
-#define DEF_VFUNC(r, c, f, ...) \
-  typedef r (*__VFUNC_TYPE_NAME(f))(c *this, ##__VA_ARGS__); \
-  OVERRIDE_VFUNC(r, c, f, ##__VA_ARGS__)
-
-#define VFUNC_CALL(this, f, ...) \
-  ((__VFUNC_TYPE_NAME(f))(*(__vfunc_t **)this)[f])(this, ##__VA_ARGS__)
-////
-
 //// internal names
 #define __VFUNC_NAME(c, f) \
   __##c##_##f
@@ -105,10 +107,10 @@ void __register_object_vfuncs(__vfunc_t vtable[]);
 ////
 
 //// virtual function registering stuff.
-void __register_vfuncs(__vfunc_t vtable[], ...);
+void __register_vfuncs(__vfunc_t *vtable, ...);
 
 #define REGISTER_CLASS_VFUNCS(c, p, ...) \
-  void __register_##c##_vfuncs(__vfunc_t vtable[]) { \
+  void __register_##c##_vfuncs(__vfunc_t *vtable) { \
     __register_##p##_vfuncs(vtable); \
     __register_vfuncs(vtable, ##__VA_ARGS__, dtor, __##c##_dtor, MAX_VFUNC); \
   } \

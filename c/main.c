@@ -15,8 +15,8 @@ enum {
 };
 
 void delete(void *this) {
-  ((dtor_t)vfunc(this, dtor))(p);
-  free(p);
+  ((dtor_t)vfunc(this, dtor))(this);
+  free(this);
 }
 
 vfunc_t base_vtable[MAX_VFUNC];
@@ -88,7 +88,7 @@ enum {
   set_name = say_hello + 1,
 };
 
-typedef void (*set_name_t)(base *this, const char *name);
+typedef void (*set_name_t)(derived *this, const char *name);
 
 const char *derived_get_name(derived *this) {
   if (this->parent.name == NULL) {
@@ -118,7 +118,7 @@ int main() {
 
   ((say_hello_t)vfunc(b, say_hello))(b);
   ((say_hello_t)vfunc(bd, say_hello))(bd);
-  ((set_name_t)vfunc(d, set_name))((base *)d, "renamed");
+  ((set_name_t)vfunc(d, set_name))(d, "renamed");
   ((say_hello_t)vfunc(bd, say_hello))(bd);
   ((say_hello_t)vfunc(d, say_hello))((base *)d);
 

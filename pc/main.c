@@ -61,8 +61,8 @@ REGISTER_CLASSES(CLASS_REF(base),
 int main() {
   polymorphic_c_init();
 
-  base *b = new_base();
-  derived *d = new_derived();
+  base *b = new(base);
+  derived *d = new(derived);
   base *bd = (base *)d;
 
   VFUNC_CALL(b, say_hello);

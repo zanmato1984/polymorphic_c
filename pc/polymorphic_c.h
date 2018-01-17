@@ -29,10 +29,14 @@ void __register_object_vfuncs(__vfunc_t vtable[]);
 // vtable manipulation functions
 void __register_vfuncs(__vfunc_t vtable[], ...);
 
+// universal new operator
+#define new(c) \
+  __##c##_ctor(malloc(sizeof(c)))
+
 // universal object delete function
 void delete(void *p);
 
-// macros to define classes
+// macros to define classe
 #define BEGIN_DEF_CLASS(c, p) \
   __vfunc_t __##c##_vtable[MAX_VFUNC]; \
   typedef struct { \
@@ -41,15 +45,10 @@ void delete(void *p);
 #define END_DEF_CLASS(c, p) \
   } c; \
   void __##c##_ctor_internal(c *this); \
-  void __##c##_ctor(c *this) { \
+  c *__##c##_ctor(c *this) { \
     __##p##_ctor((p *)this); \
     __##c##_ctor_internal(this); \
     *(__vfunc_t **)this = __##c##_vtable; \
-  } \
-  c *new_##c() { \
-    c *this = malloc(sizeof(c)); \
-    memset(this, 0, sizeof(c)); \
-    __##c##_ctor(this); \
     return this; \
   } \
   void __##c##_dtor_internal(c *this); \

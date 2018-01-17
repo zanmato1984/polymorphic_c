@@ -27,13 +27,13 @@ typedef struct {
 } base;
 
 void base_ctor(base *this) {
-  this->vptr = base_vtable;
   this->name = NULL;
 }
 
 base *new_base() {
   base *this = malloc(sizeof(base));
   base_ctor(this);
+  this->vptr = base_vtable;
   return this;
 }
 
@@ -71,12 +71,12 @@ typedef struct {
 
 void derived_ctor(derived *this) {
   base_ctor((base *)this);
-  this->parent.vptr = derived_vtable;
 }
 
 derived *new_derived() {
   derived *this = malloc(sizeof(derived));
   derived_ctor(this);
+  this->parent.vptr = derived_vtable;
   return this;
 }
 
